@@ -1,7 +1,6 @@
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 import { Queue } from 'bullmq'
-import IORedis, { Redis } from 'ioredis'
 
 import { jsonSchema as inputJsonSchema, Input } from './types/src'
 import * as configJsonSchema from './generated/config.schema.json'
@@ -17,9 +16,17 @@ const configValidator = new Ajv({
   coerceTypes: true,
 }).addSchema(configJsonSchema)
 
+const config = require('config').util.toObject()
+if (!configValidator.validate('#/definitions/Config', config)) {
+  throw Error(configValidator.errorsText(configValidator.errors))
+}
+
+const validatedConfig = config as Config
+const { redisUrl } = validatedConfig
+
 const queue = new Queue('bullmq-worker-publish-test', {
   connection: {
-    url: process.env.REDIS_URL ?? 'redis://localhost:6379',
+    url: process.env.REDIS_URL || redisUrl,
   },
 })
 

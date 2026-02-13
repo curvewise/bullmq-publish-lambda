@@ -13,22 +13,9 @@ export const TIMEOUT_SECONDS = 10
 export const MEMORY_SIZE_MB = 256
 export const RUNTIME = 'nodejs24.x'
 
-export const RDS_IAM_PG_CONFIG = {
-  awsRegion: AWS_REGION,
-  address: {
-    host: 'goldie-graphile-worker.cgbhonktiktk.us-east-1.rds.amazonaws.com',
-    port: 48720,
-    user: 'writer',
-    database: 'test',
-  },
-}
-
-export const RDS_IAM_ENV_VARS = {
-  PG_HOSTNAME: RDS_IAM_PG_CONFIG.address.host,
-  PG_PORT: `${RDS_IAM_PG_CONFIG.address.port}`,
-  PG_USERNAME: RDS_IAM_PG_CONFIG.address.user,
-  PG_DBNAME: RDS_IAM_PG_CONFIG.address.database,
-  REDIS_URL: "rediss://default:AdKxAAIncDI4MWQ1MDE0YTA0M2Q0ZGE2YjJmNWZiNzk1NjdhYjViOHAyNTM5Mzc@artistic-hawk-53937.upstash.io:6379"
+export const ENV_VARS = {
+  REDIS_URL:
+    'rediss://default:AdKxAAIncDI4MWQ1MDE0YTA0M2Q0ZGE2YjJmNWZiNzk1NjdhYjViOHAyNTM5Mzc@artistic-hawk-53937.upstash.io:6379',
 }
 
 const localPathToZipfile = path.resolve(
@@ -52,7 +39,7 @@ export async function createLambdaFunction(
     timeoutSeconds: TIMEOUT_SECONDS,
     memorySizeMb: MEMORY_SIZE_MB,
     verbose: true,
-    envVars: RDS_IAM_ENV_VARS,
+    envVars: ENV_VARS,
   })
 }
 

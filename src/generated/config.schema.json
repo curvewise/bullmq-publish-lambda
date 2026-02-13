@@ -8,36 +8,10 @@
         "awsProfile": {
           "type": "string"
         },
-        "db": {
-          "additionalProperties": false,
-          "properties": {
-            "databaseName": {
-              "type": "string"
-            },
-            "hostname": {
-              "type": "string"
-            },
-            "port": {
-              "type": "number"
-            },
-            "region": {
-              "type": "string"
-            },
-            "username": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "region",
-            "hostname",
-            "port",
-            "username",
-            "databaseName"
-          ],
-          "type": "object"
+        "redisUrl": {
+          "type": "string"
         }
       },
-      "required": ["db"],
       "type": "object"
     }
   }

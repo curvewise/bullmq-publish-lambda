@@ -2,15 +2,14 @@ import assert from 'assert'
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import { Queue } from 'bullmq'
-import { Worker } from 'bullmq'
+import { Queue, Worker } from 'bullmq'
 
 import {
   AWS_REGION,
+  ENV_VARS,
   createLambdaFunction,
   deleteLambdaFunction,
   setReservedConcurrency,
-  RDS_IAM_PG_CONFIG,
 } from './aws-test-helpers'
 import { Input } from './types'
 import { uuidHex } from './uuid-hex-test-helpers'
@@ -21,8 +20,6 @@ if (process.env.AWS_PROFILE !== 'curvewise') {
   throw Error('Expected the curvewise AWS profile')
 }
 
-const shouldResetSchema = false
-
 // For faster iteration on the integration test using an existing Lambda
 // deployment, set `shouldCleanupLambda` to false. Then on the next iteration,
 // set `shouldDeployLambda` to true and reassign `deploymentEnvironment` below.
@@ -31,39 +28,27 @@ const shouldCleanupLambda = true
 
 // For a stress test, increase this from 10 to 10000.
 const numRequests = 10
-const redisUrl = "rediss://default:AdKxAAIncDI4MWQ1MDE0YTA0M2Q0ZGE2YjJmNWZiNzk1NjdhYjViOHAyNTM5Mzc@artistic-hawk-53937.upstash.io:6379"
-// const redisUrl = process.env.REDIS_URL
+const redisUrl = ENV_VARS.REDIS_URL
 
-describe('graphile-worker-publish Lambda', () => {
-  // let pgPool: Pool
-  // before(async () => {
-  //   pgPool = createRdsPgPool(RDS_IAM_PG_CONFIG)
-  // })
-
-  // if (shouldResetSchema) {
-  //   before(async () => {
-  //     await resetGraphileWorkerDatabase(pgPool)
-  //   })
-  // }
-
+describe('bullmq-publish Lambda', () => {
   const taskIdentifier = 'bullmq-worker-publish-test'
 
-let queue: Queue
+  let queue: Queue
 
-before(async function () {
-  this.timeout(30000)
+  before(async function () {
+    this.timeout(30000)
 
-  queue = new Queue(taskIdentifier, {
-    connection: { url: process.env.REDIS_URL },
+    queue = new Queue(taskIdentifier, {
+      connection: { url: process.env.REDIS_URL },
+    })
+
+    console.log(`Draining existing jobs from ${taskIdentifier}`)
+    await queue.drain(true) // remove waiting + delayed
+    await queue.clean(0, 0, 'completed')
+    await queue.clean(0, 0, 'failed')
   })
 
-  console.log(`Draining existing jobs from ${taskIdentifier}`)
-  await queue.drain(true)   // remove waiting + delayed
-  await queue.clean(0, 0, 'completed')
-  await queue.clean(0, 0, 'failed')
-})
-
-  const uniqueFunctionName = `graphile-worker-publish-test-${uuidHex()}`
+  const uniqueFunctionName = `bullmq-publish-test-${uuidHex()}`
 
   let lambdaFunctionCreated = false
   before('create the unique lambda function', async function () {
@@ -87,7 +72,6 @@ before(async function () {
   after(async () => {
     await queue.close()
   })
-
 
   const payload = { 'this-is': ['my', 'payload', uniqueFunctionName] }
 
@@ -117,43 +101,39 @@ before(async function () {
         console.error(JSON.stringify(payload, null, 2))
       }
 
-
       expect(response).not.to.have.property('FunctionError')
       console.log(`Invoked lambda ${i + 1} of ${numRequests}`)
     }
   })
 
+  it('should have been processed', async function () {
+    this.timeout(120000)
 
-it('should have been processed', async function () {
-  this.timeout(120000)
+    let completed = 0
 
-  let completed = 0
+    const worker = new Worker(
+      taskIdentifier,
+      async job => {
+        expect(job.data).to.deep.equal(payload)
+      },
+      { connection: { url: redisUrl } },
+    )
 
-  const worker = new Worker(
-    taskIdentifier,
-    async job => {
-      expect(job.data).to.deep.equal(payload)
-    },
-    { connection: { url: redisUrl } }
-  )
+    await new Promise<void>((resolve, reject) => {
+      worker.on('completed', () => {
+        completed++
+        if (completed === numRequests) resolve()
+      })
 
-  await new Promise<void>((resolve, reject) => {
-    worker.on('completed', () => {
-      completed++
-      if (completed === numRequests) resolve()
+      worker.on('failed', (_job, err) => {
+        reject(err)
+      })
+
+      worker.on('error', reject)
     })
 
-    worker.on('failed', (_job, err) => {
-      reject(err)
-    })
+    await worker.close()
 
-    worker.on('error', reject)
+    expect(completed).to.equal(numRequests)
   })
-
-  await worker.close()
-
-  expect(completed).to.equal(numRequests)
-})
-
-
 })
