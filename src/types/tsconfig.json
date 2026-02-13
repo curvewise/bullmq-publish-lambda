@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "target": "es2019",
+    "lib": ["es2017", "es2015", "dom", "es6"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "outDir": "./build",
+    "sourceMap": true,
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true
+  },
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "src/**/test-*",
+    "src/**/*-test-helpers.ts",
+    "src/**/*.test.ts"
+  ]
+}

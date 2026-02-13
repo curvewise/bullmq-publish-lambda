@@ -1,0 +1,7 @@
+db:
+  region: AWS_REGION
+  hostname: PG_HOSTNAME
+  port: PG_PORT
+  username: PG_USERNAME
+  databaseName: PG_DBNAME
+awsProfile: AWS_PROFILE

@@ -1,0 +1,19 @@
+{
+  "name": "bullmq-publish-lambda",
+  "version": "0.1.0",
+  "description": "Types for the bullmq-publish Lambda function",
+  "main": "build",
+  "scripts": {
+    "prepare": "npm run build",
+    "prebuild": "../../node_modules/.bin/del build",
+    "build": "../../node_modules/.bin/tsc",
+    "prepublishOnly": "cd .. && npm run check-package-version",
+    "postpublish": "cd .. && npm run release"
+  },
+  "files": [
+    "build"
+  ],
+  "repository": "curvewise/bullmq-publish-lambda",
+  "author": "Metabolize LLC",
+  "license": "Apache-2.0"
+}
