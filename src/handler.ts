@@ -24,7 +24,9 @@ if (!configValidator.validate('#/definitions/Config', config)) {
 const validatedConfig = config as Config
 const { redisUrl } = validatedConfig
 
-const queue = new Queue('bullmq-worker-publish-test', {
+const stage = process.env.STAGE || 'dev'
+
+const queue = new Queue(`bullmq-worker-publish-${stage}`, {
   connection: {
     url: process.env.REDIS_URL || redisUrl,
   },

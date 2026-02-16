@@ -31,7 +31,8 @@ const numRequests = 10
 const redisUrl = ENV_VARS.REDIS_URL
 
 describe('bullmq-publish Lambda', () => {
-  const taskIdentifier = 'bullmq-worker-publish-test'
+  const stage = process.env.STAGE || 'dev'
+  const taskIdentifier = `bullmq-worker-publish-${stage}`
 
   let queue: Queue
 
@@ -132,8 +133,7 @@ describe('bullmq-publish Lambda', () => {
       worker.on('error', reject)
     })
 
-    await worker.close()
-
     expect(completed).to.equal(numRequests)
+    await worker.close()
   })
 })

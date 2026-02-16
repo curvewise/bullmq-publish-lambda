@@ -1,5 +1,15 @@
 # bullmq-worker-publish-lambda
 
+## Local setup
+
+Create a `.env` file in the project root.
+
+Add the Upstash TCP test database URL as `INTEGRATION_TEST_REDIS_URL`.
+
+```
+INTEGRATION_TEST_REDIS_URL=redis://{token}@endpoint.upstash.io:6379
+```
+
 ## Publishing
 
 1. Make a version bump pull request called e.g. "RELEASE 1.1.0". Update the

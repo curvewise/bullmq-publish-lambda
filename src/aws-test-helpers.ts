@@ -4,6 +4,7 @@ import {
   PutFunctionConcurrencyCommand,
 } from '@aws-sdk/client-lambda'
 import { createFunction, deleteFunction } from 'werkit'
+import 'dotenv/config'
 
 export const AWS_REGION = 'us-east-1'
 export const LAMBDA_ROLE =
@@ -14,8 +15,7 @@ export const MEMORY_SIZE_MB = 256
 export const RUNTIME = 'nodejs24.x'
 
 export const ENV_VARS = {
-  REDIS_URL:
-    'rediss://default:AdKxAAIncDI4MWQ1MDE0YTA0M2Q0ZGE2YjJmNWZiNzk1NjdhYjViOHAyNTM5Mzc@artistic-hawk-53937.upstash.io:6379',
+  REDIS_URL: process.env.INTEGRATION_TEST_REDIS_URL as string,
 }
 
 const localPathToZipfile = path.resolve(
