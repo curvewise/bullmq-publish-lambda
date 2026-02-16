@@ -37,9 +37,9 @@ export async function handler(event: Input, context: any): Promise<void> {
     throw Error(inputValidator.errorsText(inputValidator.errors))
   }
 
-  const { taskIdentifier, payload, taskSpec } = event
+  const { taskIdentifier, payload } = event
 
   console.log('Publishing to queue')
-  await queue.add(taskIdentifier, payload, taskSpec)
+  await queue.add(taskIdentifier, payload)
   console.log('Finished publishing to queue')
 }
