@@ -10,6 +10,9 @@
         },
         "redisUrl": {
           "type": "string"
+        },
+        "queueName": {
+          "type": "string"
         }
       },
       "type": "object"

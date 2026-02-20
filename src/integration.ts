@@ -1,5 +1,9 @@
 import assert from 'assert'
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
+import {
+  InvokeCommand,
+  LambdaClient,
+  UpdateFunctionConfigurationCommand,
+} from '@aws-sdk/client-lambda'
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import { Queue, Worker } from 'bullmq'
@@ -29,21 +33,21 @@ const shouldCleanupLambda = true
 // For a stress test, increase this from 10 to 10000.
 const numRequests = 10
 const redisUrl = ENV_VARS.REDIS_URL
+const queueName = ENV_VARS.QUEUE_NAME
+const taskIdentifier = 'integration-test-task'
 
 describe('bullmq-publish Lambda', () => {
-  const stage = process.env.STAGE || 'dev'
-  const taskIdentifier = `bullmq-worker-publish-${stage}`
-
   let queue: Queue
+  const lambdaClient = new LambdaClient({ region: AWS_REGION })
 
   before(async function () {
     this.timeout(30000)
 
-    queue = new Queue(taskIdentifier, {
-      connection: { url: process.env.REDIS_URL },
+    queue = new Queue(queueName, {
+      connection: { url: redisUrl },
     })
 
-    console.log(`Draining existing jobs from ${taskIdentifier}`)
+    console.log(`Draining existing jobs from ${queueName}`)
     await queue.drain(true) // remove waiting + delayed
     await queue.clean(0, 0, 'completed')
     await queue.clean(0, 0, 'failed')
@@ -57,6 +61,14 @@ describe('bullmq-publish Lambda', () => {
     if (shouldDeployLambda) {
       console.error(`Using unique function name ${uniqueFunctionName}`)
       await createLambdaFunction(uniqueFunctionName)
+      await lambdaClient.send(
+        new UpdateFunctionConfigurationCommand({
+          FunctionName: uniqueFunctionName,
+          Environment: {
+            Variables: ENV_VARS,
+          },
+        }),
+      )
       if (numRequests > 20) {
         await setReservedConcurrency(uniqueFunctionName, 20)
       }
@@ -80,7 +92,6 @@ describe('bullmq-publish Lambda', () => {
     this.timeout('10m')
 
     const lambdaPayload: Input = { taskIdentifier, payload }
-    const lambdaClient = new LambdaClient({ region: AWS_REGION })
     const command = new InvokeCommand({
       FunctionName: uniqueFunctionName,
       InvocationType: 'RequestResponse',
@@ -113,8 +124,9 @@ describe('bullmq-publish Lambda', () => {
     let completed = 0
 
     const worker = new Worker(
-      taskIdentifier,
+      queueName,
       async job => {
+        expect(job.name).to.equal(taskIdentifier)
         expect(job.data).to.deep.equal(payload)
       },
       { connection: { url: redisUrl } },

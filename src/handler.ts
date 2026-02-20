@@ -5,6 +5,7 @@ import { Queue } from 'bullmq'
 import { jsonSchema as inputJsonSchema, Input } from './types/src'
 import * as configJsonSchema from './generated/config.schema.json'
 import { Config } from './config.schema'
+const config: any = require('config')
 
 // Use separate Ajv instances to try to dodge (intermittent?) error
 // "schema with key or id \"\" already exists".
@@ -16,26 +17,34 @@ const configValidator = new Ajv({
   coerceTypes: true,
 }).addSchema(configJsonSchema)
 
-const config = require('config').util.toObject()
 if (!configValidator.validate('#/definitions/Config', config)) {
   throw Error(configValidator.errorsText(configValidator.errors))
 }
 
 const validatedConfig = config as Config
-const { redisUrl } = validatedConfig
 
-const stage = process.env.STAGE || 'dev'
+const queueName = process.env.QUEUE_NAME ?? validatedConfig.queueName
 
-const queue = new Queue(`bullmq-worker-publish-${stage}`, {
-  connection: {
-    url: process.env.REDIS_URL || redisUrl,
-  },
-})
+if (!queueName) {
+  throw Error('QUEUE_NAME not configured')
+}
+
+const redisUrl = process.env.REDIS_URL ?? validatedConfig.redisUrl
+
+if (!redisUrl) {
+  throw Error('REDIS_URL not configured')
+}
 
 export async function handler(event: Input, context: any): Promise<void> {
   if (!inputValidator.validate('#/definitions/Input', event)) {
     throw Error(inputValidator.errorsText(inputValidator.errors))
   }
+
+  const queue = new Queue(queueName, {
+    connection: {
+      url: redisUrl,
+    },
+  })
 
   const { taskIdentifier, payload } = event
 

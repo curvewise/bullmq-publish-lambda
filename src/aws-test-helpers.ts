@@ -15,7 +15,8 @@ export const RUNTIME = 'nodejs24.x'
 const config: any = require('config')
 
 export const ENV_VARS = {
-  REDIS_URL: config.get('redisUrl')
+  REDIS_URL: process.env.REDIS_URL ?? config.redisUrl,
+  QUEUE_NAME: process.env.QUEUE_NAME ?? config.queueName,
 }
 
 const localPathToZipfile = path.resolve(
