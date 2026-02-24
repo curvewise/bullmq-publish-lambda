@@ -29,13 +29,15 @@
     "ajv-formats": "~3.0.1",
     "bullmq": "~5.69.1",
     "config": "~4.2.0",
-    "types": "./src/types"
+    "types": "./src/types",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@aws-sdk/client-lambda": "3.984.0",
     "@metabolize/uuid-to-hex": "2.0.0",
     "@types/chai": "5.2.3",
     "@types/chai-as-promised": "8.0.2",
+    "@types/config": "^3.3.5",
     "@types/dirty-chai": "2.0.5",
     "@types/mocha": "10.0.10",
     "@types/node": "25.2.1",

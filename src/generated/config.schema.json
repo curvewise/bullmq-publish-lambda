@@ -15,6 +15,7 @@
           "type": "string"
         }
       },
+      "required": ["queueName", "redisUrl"],
       "type": "object"
     }
   }

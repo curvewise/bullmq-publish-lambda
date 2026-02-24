@@ -22,30 +22,25 @@ if (!configValidator.validate('#/definitions/Config', config)) {
 }
 
 const validatedConfig = config as Config
+const queueName = validatedConfig.queueName
+const redisUrl = validatedConfig.redisUrl
 
-const queueName = process.env.QUEUE_NAME ?? validatedConfig.queueName
+let queue: Queue
 
-if (!queueName) {
-  throw Error('QUEUE_NAME not configured')
-}
-
-const redisUrl = process.env.REDIS_URL ?? validatedConfig.redisUrl
-
-if (!redisUrl) {
-  throw Error('REDIS_URL not configured')
+function getQueue(): Queue {
+  if (!queue) {
+    queue = new Queue(queueName, {
+      connection: { url: redisUrl },
+    })
+  }
+  return queue
 }
 
 export async function handler(event: Input, context: any): Promise<void> {
   if (!inputValidator.validate('#/definitions/Input', event)) {
     throw Error(inputValidator.errorsText(inputValidator.errors))
   }
-
-  const queue = new Queue(queueName, {
-    connection: {
-      url: redisUrl,
-    },
-  })
-
+  const queue = getQueue()
   const { taskIdentifier, payload } = event
 
   console.log('Publishing to queue')

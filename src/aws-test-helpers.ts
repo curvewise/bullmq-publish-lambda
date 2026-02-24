@@ -12,12 +12,6 @@ export const SCRATCH_BUCKET = 'goldilocks-scratch-test'
 export const TIMEOUT_SECONDS = 10
 export const MEMORY_SIZE_MB = 256
 export const RUNTIME = 'nodejs24.x'
-const config: any = require('config')
-
-export const ENV_VARS = {
-  REDIS_URL: process.env.REDIS_URL ?? config.redisUrl,
-  QUEUE_NAME: process.env.QUEUE_NAME ?? config.queueName,
-}
 
 const localPathToZipfile = path.resolve(
   __dirname,
@@ -28,6 +22,7 @@ const localPathToZipfile = path.resolve(
 
 export async function createLambdaFunction(
   functionName: string,
+  envVars: { redisUrl: string; queueName: string },
 ): Promise<void> {
   await createFunction({
     region: AWS_REGION,
@@ -40,7 +35,10 @@ export async function createLambdaFunction(
     timeoutSeconds: TIMEOUT_SECONDS,
     memorySizeMb: MEMORY_SIZE_MB,
     verbose: true,
-    envVars: ENV_VARS,
+    envVars: {
+      REDIS_URL: envVars.redisUrl,
+      QUEUE_NAME: envVars.queueName,
+    },
   })
 }
 
