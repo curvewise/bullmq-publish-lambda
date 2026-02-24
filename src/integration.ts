@@ -60,7 +60,7 @@ describe('bullmq-publish Lambda', () => {
     this.timeout('10m')
     if (shouldDeployLambda) {
       console.error(`Using unique function name ${uniqueFunctionName}`)
-      await createLambdaFunction(uniqueFunctionName, {redisUrl, queueName})
+      await createLambdaFunction(uniqueFunctionName, { redisUrl, queueName })
       await lambdaClient.send(
         new UpdateFunctionConfigurationCommand({
           FunctionName: uniqueFunctionName,
