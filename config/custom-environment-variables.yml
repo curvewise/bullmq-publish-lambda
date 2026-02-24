@@ -1,0 +1,3 @@
+awsProfile: AWS_PROFILE
+redisUrl: REDIS_URL
+queueName: QUEUE_NAME

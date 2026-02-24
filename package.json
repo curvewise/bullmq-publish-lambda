@@ -1,0 +1,76 @@
+{
+  "name": "bullmq-publish-lambda-root",
+  "version": "0.1.0",
+  "description": "Lambda for publishing tasks to a bullmq queue running on RDS",
+  "scripts": {
+    "prebuild": "del dist",
+    "build": "tsc",
+    "prelambda:build": "npm run build && del lambda-build/ lambdas/",
+    "lambda:build": "./scripts/build-lambda.sh",
+    "check-package-version": "if [ $(node -e \"console.log(require('./src/types/package.json').version)\") = $(node -e \"console.log(require('./package.json').version)\") ]; then exit 0; else echo 'Package versions are not in sync'; exit 1; fi;",
+    "prerelease": "npm run check-package-version && npm run lambda:build",
+    "release": "gh-release --assets lambdas/bullmq-publish.zip",
+    "test": "ts-mocha \"src/**/*.test.ts\"",
+    "preintegration": "npm run lambda:build",
+    "integration:test": "AWS_PROFILE=curvewise mocha src/integration.ts",
+    "integration": "npm run integration:test",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --ext js,ts",
+    "format:check": "prettier --check \"**/*.@(ts|js|md|json|yml)\"",
+    "format:fix": "prettier --write \"**/*.@(ts|js|md|json|yml)\"",
+    "schema:check": "1schema check",
+    "schema:update": "1schema update"
+  },
+  "private": true,
+  "author": "Metabolize LLC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ajv": "~8.17.1",
+    "ajv-formats": "~3.0.1",
+    "bullmq": "~5.69.1",
+    "config": "~4.2.0",
+    "types": "./src/types",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-lambda": "3.984.0",
+    "@metabolize/uuid-to-hex": "2.0.0",
+    "@types/chai": "5.2.3",
+    "@types/chai-as-promised": "8.0.2",
+    "@types/config": "^3.3.5",
+    "@types/dirty-chai": "2.0.5",
+    "@types/mocha": "10.0.10",
+    "@types/node": "25.2.1",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
+    "1schema": "0.2.0",
+    "chai": "6.2.2",
+    "chai-as-promised": "8.0.2",
+    "del-cli": "7.0.0",
+    "dirty-chai": "3.0.0-rc.1",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-config-standard": "17.1.0",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-n": "16.6.2",
+    "eslint-plugin-promise": "6.6.0",
+    "gh-release": "7.0.2",
+    "mocha": "11.7.5",
+    "prettier": "3.8.1",
+    "ts-mocha": "11.1.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3",
+    "uuid": "13.0.0",
+    "werkit": "0.30.1"
+  },
+  "mocha": {
+    "extension": [
+      "ts"
+    ],
+    "require": "ts-node/register"
+  },
+  "repository": "curvewise/bullmq-publish-lambda",
+  "engines": {
+    "node": "24.13.0"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$ref": "#/definitions/Input",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Input": {
+      "additionalProperties": false,
+      "properties": {
+        "payload": {},
+        "taskIdentifier": {
+          "type": "string"
+        },
+        "taskSpec": {
+          "$ref": "#/definitions/TaskSpec"
+        }
+      },
+      "required": ["taskIdentifier"],
+      "type": "object"
+    },
+    "TaskSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "flags": {
+          "description": "Flags for the job, can be used to dynamically filter which jobs can and cannot run at runtime. (Default: null)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "jobKey": {
+          "description": "Unique identifier for the job, can be used to update or remove it later if needed. (Default: null)",
+          "type": "string"
+        },
+        "jobKeyMode": {
+          "description": "Modifies the behavior of `jobKey`; when 'replace' all attributes will be updated, when 'preserve_run_at' all attributes except 'run_at' will be updated, when 'unsafe_dedupe' a new job will only be added if no existing job (including locked jobs and permanently failed jobs) with matching job key exists. (Default: 'replace')",
+          "enum": ["replace", "preserve_run_at", "unsafe_dedupe"],
+          "type": "string"
+        },
+        "maxAttempts": {
+          "description": "How many retries should this task get? (Default: 25)",
+          "type": "number"
+        },
+        "priority": {
+          "description": "Jobs are executed in numerically ascending order of priority (jobs with a numerically smaller priority are run first). (Default: 0)",
+          "type": "number"
+        },
+        "queueName": {
+          "description": "The queue to run this task under (only specify if you want jobs in this queue to run serially). (Default: null)",
+          "type": "string"
+        },
+        "runAt": {
+          "description": "A Date to schedule this task to run in the future. (Default: now)",
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
