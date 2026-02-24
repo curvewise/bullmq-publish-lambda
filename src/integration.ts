@@ -1,10 +1,6 @@
 import assert from 'assert'
-import {
-  InvokeCommand,
-  LambdaClient,
-  UpdateFunctionConfigurationCommand,
-} from '@aws-sdk/client-lambda'
-import config from 'config'
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
+import { loadConfig } from './config'
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import { Queue, Worker } from 'bullmq'
@@ -32,8 +28,9 @@ const shouldCleanupLambda = true
 
 // For a stress test, increase this from 10 to 10000.
 const numRequests = 10
-const redisUrl = config.get<string>('redisUrl')
-const queueName = config.get<string>('queueName')
+
+const { queueName, redisUrl } = loadConfig()
+
 const taskIdentifier = 'integration-test-task'
 
 describe('bullmq-publish Lambda', () => {
@@ -61,17 +58,7 @@ describe('bullmq-publish Lambda', () => {
     if (shouldDeployLambda) {
       console.error(`Using unique function name ${uniqueFunctionName}`)
       await createLambdaFunction(uniqueFunctionName, { redisUrl, queueName })
-      await lambdaClient.send(
-        new UpdateFunctionConfigurationCommand({
-          FunctionName: uniqueFunctionName,
-          Environment: {
-            Variables: {
-              REDIS_URL: redisUrl,
-              QUEUE_NAME: queueName,
-            },
-          },
-        }),
-      )
+
       if (numRequests > 20) {
         await setReservedConcurrency(uniqueFunctionName, 20)
       }

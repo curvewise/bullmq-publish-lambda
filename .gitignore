@@ -15,4 +15,3 @@ rds.env
 /lambdas
 /dist
 /src/types/build
-.env
