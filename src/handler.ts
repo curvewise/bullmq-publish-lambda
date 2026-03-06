@@ -30,7 +30,13 @@ export async function handler(event: Input, context: any): Promise<void> {
   const queue = getQueue()
   const { taskIdentifier, payload } = event
 
-  console.log('Publishing to queue')
-  await queue.add(taskIdentifier, payload)
-  console.log('Finished publishing to queue')
+  console.log(`Publishing to queue with taskIdentifier ${taskIdentifier}`)
+  await queue.add(taskIdentifier, payload, {
+    attempts: 1,
+    removeOnFail: true,
+    removeOnComplete: true,
+  })
+  console.log(
+    `Finished publishing to queue with taskIdentifier ${taskIdentifier}`,
+  )
 }
