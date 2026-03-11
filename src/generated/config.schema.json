@@ -8,14 +8,14 @@
         "awsProfile": {
           "type": "string"
         },
-        "redisUrl": {
+        "queueName": {
           "type": "string"
         },
-        "queueName": {
+        "redisUrl": {
           "type": "string"
         }
       },
-      "required": ["queueName", "redisUrl"],
+      "required": ["redisUrl", "queueName"],
       "type": "object"
     }
   }
