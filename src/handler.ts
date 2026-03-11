@@ -32,9 +32,13 @@ export async function handler(event: Input, context: any): Promise<void> {
 
   console.log(`Publishing to queue with taskIdentifier ${taskIdentifier}`)
   await queue.add(taskIdentifier, payload, {
-    attempts: 1,
-    removeOnFail: true,
+    attempts: 2,
+    removeOnFail: 50,
     removeOnComplete: true,
+    backoff: {
+      type: 'exponential',
+      delay: 1000 * 120, // 2 minutes
+    },
   })
   console.log(
     `Finished publishing to queue with taskIdentifier ${taskIdentifier}`,
