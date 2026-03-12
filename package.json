@@ -1,6 +1,6 @@
 {
   "name": "bullmq-publish-lambda-root",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lambda for publishing tasks to a bullmq queue running on RDS",
   "scripts": {
     "prebuild": "del dist",

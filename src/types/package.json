@@ -1,6 +1,6 @@
 {
   "name": "bullmq-publish-lambda",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Types for the bullmq-publish Lambda function",
   "main": "build",
   "scripts": {
