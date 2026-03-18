@@ -1,4 +1,4 @@
-# bullmq-worker-publish-lambda
+# bullmq-publish-lambda
 
 ## Local setup
 

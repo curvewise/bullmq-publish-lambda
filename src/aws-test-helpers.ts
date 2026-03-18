@@ -3,7 +3,7 @@ import {
   LambdaClient,
   PutFunctionConcurrencyCommand,
 } from '@aws-sdk/client-lambda'
-import { createFunction, deleteFunction } from 'werkit'
+import { createFunction, deleteFunction } from 'werkit-lambda'
 
 export const AWS_REGION = 'us-east-1'
 export const LAMBDA_ROLE = 'arn:aws:iam::312760052655:role/publish-lambda-test'
