@@ -10,7 +10,7 @@
     "check-package-version": "if [ $(node -e \"console.log(require('./src/types/package.json').version)\") = $(node -e \"console.log(require('./package.json').version)\") ]; then exit 0; else echo 'Package versions are not in sync'; exit 1; fi;",
     "prerelease": "npm run check-package-version && npm run lambda:build",
     "release": "gh-release --assets lambdas/bullmq-publish.zip",
-    "test": "ts-mocha \"src/**/*.test.ts\"",
+    "test": "mocha \"src/**/*.test.ts\"",
     "preintegration": "npm run lambda:build",
     "integration:test": "AWS_PROFILE=curvewise mocha src/integration.ts",
     "integration": "npm run integration:test",
@@ -57,8 +57,7 @@
     "gh-release": "7.0.2",
     "mocha": "11.7.5",
     "prettier": "3.8.1",
-    "ts-mocha": "11.1.0",
-    "ts-node": "10.9.2",
+    "tsx": "4.x",
     "typescript": "5.9.3",
     "uuid": "13.0.0",
     "werkit": "0.30.1"
@@ -67,7 +66,7 @@
     "extension": [
       "ts"
     ],
-    "require": "ts-node/register"
+    "require": "tsx"
   },
   "repository": "curvewise/bullmq-publish-lambda",
   "engines": {
